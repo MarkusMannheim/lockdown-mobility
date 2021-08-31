@@ -1,0 +1,133 @@
+/* b: #009CBF o: #F75F00 g: #00A388 --tint-1: #333; --tint-2: #666; --tint-3: #999; --tint-4: #ccc; --tint-5: #e6e6e6; --tint-6: #f2f2f2; */
+@font-face {
+ font-family: ABCSansNovaRegular;
+ src: url(../fonts/ABCSansNova-Regular.otf);
+}
+@font-face {
+ font-family: ABCSansNovaBlack;
+ src: url(../fonts/ABCSansNova-Black.otf);
+}
+@font-face {
+ font-family: ABCSansNovaLight;
+ src: url(../fonts/ABCSansNova-Light.otf);
+}
+:root {
+  font-size: 1em;
+  font-family: ABCSansNovaBlack, "Arial Black", Helvetica, sans-serif;
+  color: #333;
+  box-sizing: border-box;
+}
+body {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  margin: 0;
+  display: flex;
+  flex-flow: column;
+}
+h1, p {
+  margin: 0;
+}
+#map {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0;
+}
+#border {
+  fill: none;
+  stroke: #999;
+  stroke-dasharray: 3 4;
+  stroke-width: 2;
+}
+#water {
+  fill: #999;
+}
+.suburb {
+  fill: #f2f2f2;
+  stroke: #ccc;
+  stroke-width: 1.5;
+}
+#parks {
+  fill: #f2f2f2;
+  opacity: .5;
+}
+.site {
+  fill: red;
+  stroke: white;
+  stroke-width: 2;
+  opacity: 0;
+}
+.site.Casual {
+  fill: #F75F00;
+}
+.site.Monitor {
+  fill: #FFB300;
+}
+.site.lightrail, .site.bus {
+  stroke-width: 4;
+  fill: none;
+  stroke: #999;
+}
+#bar {
+  width: 0px;
+  height: 4rem;
+  background: #009CBF;
+}
+#count {
+  position: absolute;
+  color: white;
+  font-size: 3.5rem;
+  line-height: 4rem;
+  text-shadow: 3px 3px 5px #333;
+  top: 0;
+  left: 1rem;
+}
+#header {
+  background: #333;
+}
+#keys {
+  position: fixed;
+  bottom: 4rem;
+  left: 2rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
+  font-size: 1.75rem;
+}
+.key {
+  display: flex;
+  margin-top: 1.5rem;
+}
+.key.header {
+  font-size: 2rem;
+}
+.key:first-child {
+  margin-top: 0;
+}
+.box {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: red;
+}
+.line {
+  width: 2rem;
+  height: .875rem;
+  background: none;
+  border-bottom: solid 10px #999;
+}
+.box.Casual {
+  background: #F75F00;
+}
+.box.Monitor {
+  background: #FFB300;
+}
+.key .label {
+  font-family: ABCSansNovaRegular, Helvetica, sans-serif;
+  margin-left: 1.5rem;
+  line-height: 2rem;
+}

@@ -25,9 +25,35 @@
   <body>
     <div id="header"></div>
     <svg id="chart">
-      <g class="group Canberra"></g>
-      <g class="group Sydney"></g>
-      <g class="group Melbourne"></g>
+      <g class="group Canberra">
+        <g class="chartGroup">
+          <path class="area"></path>
+          <path class="line"></path>
+        </g>
+        <g class="axisGroup">
+          <text class="axisLabel">CANBERRA</text>
+          <text class="day">day</text>
+        </g>
+      </g>
+      <g class="group Sydney">
+        <g class="chartGroup">
+          <path class="area"></path>
+          <path class="line"></path>
+        </g>
+        <g class="axisGroup">
+          <text class="axisLabel">SYDNEY</text>
+          <text class="day">day</text>
+        </g>
+      </g>
+      <g class="group Melbourne">
+        <g class="chartGroup">
+          <path class="area"></path>
+          <path class="line"></path>
+        </g>
+        <g class="axisGroup">
+          <text class="axisLabel">MELBOURNE</text>
+          <text class="day">day</text></g>
+      </g>
       <g id="axisGroup"></g>
     </svg>
 
@@ -69,7 +95,7 @@
               return {
                 date: new Date(d.date),
                 city: d.city,
-                value: +d[type[1]]
+                value: +d[type[1]] / 100
               };
             })
             .sort(function(a, b) {
@@ -81,27 +107,21 @@
             .domain(d3.extent(cityData, function(d) {
               return d.value;
             })).nice();
-
-          xC = d3.scaleTime()
-            .domain(d3.extent(cityData.filter(function(d) {
-              return d.city == "Canberra";
-            }), function(d) {
-              return d.date;
-            }));
-
-          xS = d3.scaleTime()
-            .domain(d3.extent(cityData.filter(function(d) {
-              return d.city == "Sydney";
-            }), function(d) {
-              return d.date;
-            }));
-
-          xM = d3.scaleTime()
-            .domain(d3.extent(cityData.filter(function(d) {
-              return d.city == "Melbourne";
-            }), function(d) {
-              return d.date;
-            }));
+          x = d3.scaleLinear()
+            .domain([-5, 14]);
+          area = d3.area()
+            .x(function(d, i) { return x(i - 5); })
+            .y1(function(d) { return y(d.value); })
+            .y0(function(d) {
+              return type[0] == "residential" ?
+                d.value < 0 ? y(d.value) : y(0) :
+                d.value > 0 ? y(d.value) : y(0);
+            })
+            .curve(d3.curveBasis);
+          line = d3.line()
+            .x(function(d, i) { return x(i - 5); })
+            .y(function(d) { return y(d.value); })
+            .curve(d3.curveBasis);
 
           // begin and draw
           window.addEventListener("resize", resize);
@@ -114,28 +134,118 @@
         });
 
       function resize() {
+        // flush previous axes
+        axisGroup.selectAll("*")
+          .remove();
         dimensions = document.getElementById("chart")
           .getBoundingClientRect();
         width = dimensions.width;
         height = dimensions.height;
-        if (chartWidth > 500) {
-          chartWidth = width / 3;
-          chartHeight = height;
+
+        // desktop
+        if (width > 500) {
           margin = {
             top: 10,
-            right: 10,
-            bottom: 10,
-            left: 10
+            right: 0,
+            bottom: 55,
+            left: 40
           };
+          chartWidth = (width + 10 - margin.left - margin.right) / 3;
+          chartHeight = (height - margin.top - margin.bottom);
+          // y axis
+          y.range([height - margin.bottom, margin.top]);
+          axisGroup.attr("transform", "translate(" + margin.left + ", 0)")
+            .call(d3.axisLeft(y)
+              .ticks(3, "+.0%")
+              .tickSizeOuter(0)
+              .tickPadding(5)
+              .tickSizeInner(margin.left + margin.right - width)
+            );
+          // x axes
+          d3.selectAll(".group .axisGroup")
+            .attr("transform", "translate(0, " + (height - margin.bottom) + ")")
+            .each(function(d, i) {
+              x.range([margin.left + chartWidth * i, margin.left + chartWidth * (i + 1) - 10]);
+              d3.select(this)
+                .call(d3.axisBottom(x)
+                  .ticks(3)
+                  .tickSizeOuter(0)
+                  .tickPadding(5)
+                  .tickSizeInner(margin.top + margin.bottom - height)
+                )
+                .select(".day")
+                  .attr("y", 30)
+                  .attr("x", margin.left + chartWidth * (i + .5) - 10);
+              d3.select(this)
+                .select(".axisLabel")
+                  .attr("y", 55)
+                  .attr("x", margin.left + chartWidth * (i + .5) - 10);
+              d3.select(".group." + cities[i] + " .line")
+                .attr("d", line(cityData.filter(function(e) {
+                  return e.city == cities[i];
+                })));
+              d3.select(".group." + cities[i] + " .area")
+                .attr("d", area(cityData.filter(function(e) {
+                  return e.city == cities[i];
+                })));
+            });
+
+        // mobile
         } else {
-          chartWidth = width;
-          chartHeight = height / 3;
           margin = {
             top: 10,
-            right: 10,
+            right: 0,
             bottom: 10,
-            left: 10
+            left: 35
           };
+          chartWidth = (width - margin.left - margin.right);
+          chartHeight = (height + 10 - margin.top - margin.bottom) / 3;
+          // x axes
+          x.range([margin.left, width - margin.right]);
+          d3.selectAll(".group .axisGroup")
+            .append("g")
+              .classed("xAxis", true);
+          d3.selectAll(".group .axisGroup")
+            .append("g")
+              .classed("yAxis", true);
+          d3.selectAll(".group .axisGroup")
+            .each(function(d, i) {
+              y.range([margin.top + chartHeight * (i + 1) - 60, margin.top + chartHeight * i]);
+              d3.select(this)
+                .select(".xAxis")
+                  .attr("transform", "translate(0, " + y.range()[0] + ")")
+                  .call(d3.axisBottom(x)
+                    .ticks(3)
+                    .tickSizeOuter(0)
+                    .tickPadding(5)
+                    .tickSizeInner(60 - chartHeight)
+                  );
+              d3.select(this)
+                .select(".day")
+                  .attr("y", margin.top + chartHeight * (i + 1) - 35)
+                  .attr("x", margin.left + chartWidth / 2 - 10);
+              d3.select(this)
+                .select(".axisLabel")
+                  .attr("y", margin.top + chartHeight * (i + 1) - 15)
+                  .attr("x", margin.left + chartWidth / 2 - 10);
+              d3.select(this)
+                .select(".yAxis")
+                  .attr("transform", "translate(" + margin.left + ", 0)")
+                  .call(d3.axisLeft(y)
+                    .ticks(3, "+.0%")
+                    .tickSizeOuter(0)
+                    .tickPadding(5)
+                    .tickSizeInner(margin.left + margin.right - width)
+                  );
+              d3.select(".group." + cities[i] + " .line")
+                .attr("d", line(cityData.filter(function(e) {
+                  return e.city == cities[i];
+                })));
+              d3.select(".group." + cities[i] + " .area")
+                .attr("d", area(cityData.filter(function(e) {
+                  return e.city == cities[i];
+                })));
+            });
         }
       }
     </script>

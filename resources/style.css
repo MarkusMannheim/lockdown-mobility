@@ -22,7 +22,7 @@ body {
   top: 0;
   right: 0;
   left: 0;
-  bottom: .5rem;
+  bottom: 1rem;
   margin: 0;
   display: flex;
   flex-flow: column;
@@ -36,5 +36,73 @@ h1, p {
   height: 100%;
   opacity: 0;
 }
+#header {
+  font-family: ABCSansNovaBlack, "Arial Black", Helvetica, sans-serif;
+  font-size: 1.25rem;
+}
+.domain {
+  display: none;
+}
+.tick text {
+  fill: #666;
+  font-size: .8rem
+}
+.tick line {
+  fill: #666;
+  stroke-width: .5;
+  stroke-dasharray: 1 2;
+}
+.day {
+  fill: #666;
+  font-size: .8rem;
+  font-weight: bold;
+}
+.axisLabel {
+  font-family: ABCSansNovaBlack, "Arial Black", Helvetica, sans-serif;
+  font-size: 1rem;
+}
+.line {
+  stroke-width: 3;
+  fill: none;
+}
+.area {
+  stroke: none;
+  opacity: .25;
+}
+.Canberra .axisLabel, .Canberra .area {
+  fill: #009CBF;
+}
+.Canberra .line {
+  stroke: #009CBF;
+}
+.Sydney .axisLabel, .Sydney .area {
+  fill: #F75F00;
+}
+.Sydney .line {
+  stroke: #F75F00;
+}
+.Melbourne .axisLabel, .Melbourne .area {
+  fill: #00A388;
+}
+.Melbourne .line {
+  stroke: #00A388;
+}
 @media only screen and (max-width: 500px) {
+  #header {
+    font-size: 1.1rem;
+  }
+  .tick text {
+    font-size: .7rem
+  }
+  .day {
+    font-size: .7rem;
+    text-anchor: middle;
+  }
+  .axisLabel {
+    font-size: .9rem;
+    text-anchor: middle;
+  }
+  .line {
+    stroke-width: 2;
+  }
 }

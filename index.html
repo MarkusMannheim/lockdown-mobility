@@ -104,9 +104,14 @@
 
           // prepare chart
           y = d3.scaleLinear()
-            .domain(d3.extent(cityData, function(d) {
-              return d.value;
-            })).nice();
+            .domain([
+              d3.min(cityData, function(d) {
+                return d.value;
+              }),
+              d3.max([d3.max(cityData, function(d) {
+                return d.value;
+              }), 0])
+            ]).nice();
           x = d3.scaleLinear()
             .domain([-5, 14]);
           area = d3.area()

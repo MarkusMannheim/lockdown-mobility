@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-155991615-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "UA-155991615-1");
+    </script>
+
+    <!-- my stuff -->
+    <meta charset="utf-8">
+    <title>Tale of three cities</title>
+    <meta name="author" content="Markus Mannheim">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- initial scripts -->
+    <script src="./resources/d3.v6.min.js"></script>
+    <link href="./resources/style.css" rel="stylesheet">
+    <link href="./resources/abcLogo64.png" rel="icon">
+  </head>
+
+  <body>
+    <div id="header"></div>
+    <svg id="chart">
+      <g class="group Canberra"></g>
+      <g class="group Sydney"></g>
+      <g class="group Melbourne"></g>
+      <g id="axisGroup"></g>
+    </svg>
+
+    <script>
+      // page elements
+      header = d3.select("#header");
+      chart = d3.select("#chart");
+      axisGroup = d3.select("#axisGroup");
+
+      // load data
+      d3.csv("./data/cities.csv")
+        .then(function(data) {
+
+          // which chart?
+          types = [
+            ["grocery", "grocery_pharmacy", "Essential purchases"],
+            ["parks", "parks", "Parks"],
+            ["residential", "residential", "At home"],
+            ["retail", "retail_recreation", "Shopping, dining, entertainment"],
+            ["transit", "transit", "Transport stops"],
+            ["workplace", "workplaces", "Workplaces"]
+          ];
+          type = new URLSearchParams(window.location.search).get("chart");
+          type = types
+            .filter(function(d) {
+              return d[0] == type;
+            })[0];
+          header.text(type[2]);
+
+          // data
+          cities = ["Canberra", "Sydney", "Melbourne"];
+          lockdownDates = [
+            new Date("2021-06-23"),
+            new Date("2021-05-28"),
+            new Date("2021-08-12")
+          ];
+          cityData = data
+            .map(function(d) {
+              return {
+                date: new Date(d.date),
+                city: d.city,
+                value: +d[type[1]]
+              };
+            })
+            .sort(function(a, b) {
+              return d3.ascending(a.date, b.date);
+            });
+
+          // prepare chart
+          y = d3.scaleLinear()
+            .domain(d3.extent(cityData, function(d) {
+              return d.value;
+            })).nice();
+
+          xC = d3.scaleTime()
+            .domain(d3.extent(cityData.filter(function(d) {
+              return d.city == "Canberra";
+            }), function(d) {
+              return d.date;
+            }));
+
+          xS = d3.scaleTime()
+            .domain(d3.extent(cityData.filter(function(d) {
+              return d.city == "Sydney";
+            }), function(d) {
+              return d.date;
+            }));
+
+          xM = d3.scaleTime()
+            .domain(d3.extent(cityData.filter(function(d) {
+              return d.city == "Melbourne";
+            }), function(d) {
+              return d.date;
+            }));
+
+          // begin and draw
+          window.addEventListener("resize", resize);
+          d3.timeout(function() { // short pause to allow fonts to load
+            resize();
+            chart.transition()
+              .duration(500)
+              .style("opacity", 1);
+          }, 500);
+        });
+
+      function resize() {
+        dimensions = document.getElementById("chart")
+          .getBoundingClientRect();
+        width = dimensions.width;
+        height = dimensions.height;
+        if (chartWidth > 500) {
+          chartWidth = width / 3;
+          chartHeight = height;
+          margin = {
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10
+          };
+        } else {
+          chartWidth = width;
+          chartHeight = height / 3;
+          margin = {
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

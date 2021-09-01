@@ -39,6 +39,7 @@ h1, p {
 #header {
   font-family: ABCSansNovaBlack, "Arial Black", Helvetica, sans-serif;
   font-size: 1.25rem;
+  margin-bottom: .25rem;
 }
 .domain {
   display: none;
